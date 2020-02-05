@@ -47,20 +47,24 @@ public class UIManager
     /// </summary>
     public void PushPanel(UIPanelType panelType)
     {
+        //判断一下栈是否为空
         if(panelStack==null)
         {
             panelStack = new Stack<BasePanel>();
         }
 
-        //判断一下栈里面是否有页面
+        //判断一下栈里面是否有页面，有的话将页面暂停
         if(panelStack.Count>0)
         {
             BasePanel topPanel = panelStack.Peek();
             topPanel.OnPause();
         }
 
+        //获得要显示面板的BasePanel
         BasePanel panel = GetPanel(panelType);
+        //调用BasePanel的OnEnter函数
         panel.OnEnter();
+        //显示的面板入栈
         panelStack.Push(panel);
     }
     /// <summary>
@@ -89,6 +93,7 @@ public class UIManager
     /// <returns></returns>
     private BasePanel GetPanel(UIPanelType panelType)
     {
+        //如果面板对象字典为空，初始化
         if(panelDict==null)
         {
             panelDict = new Dictionary<UIPanelType, BasePanel>();
@@ -96,13 +101,16 @@ public class UIManager
 
         //BasePanel panel;
         //panelDict.TryGetValue(panelType, out panel);
+
+        //对Direction类进行了扩展，扩展出TryGet方法，简化TryGetValue
         BasePanel panel = panelDict.TryGet(panelType);
 
-        if(panel==null)
+        //如果面板还没实例化出来找不到，那么就找这个面板的路径，然后根据prefab去实例化面板
+        if (panel==null)
         {
-            //如果找不到，那么就找这个面板的路径，然后根据prefab去实例化面板
             //string path;
             //panelPathDict.TryGetValue(panelType, out path);
+
             string path = panelPathDict.TryGet(panelType);
 
             GameObject instPanel = GameObject.Instantiate(Resources.Load(path))as GameObject;
